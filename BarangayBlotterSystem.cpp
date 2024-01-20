@@ -132,12 +132,12 @@ void displayStatistics(const vector<BlotterCase>& blotterCases, const vector<Off
                                    [](const BlotterCase& b) { return !b.report.empty(); });
     cout << "Successful Cases: " << successfulCases << endl;
 
-    int casesInCurrentMonth = blotterCases.size(); // Placeholder for current month logic
+    int casesInCurrentMonth = blotterCases.size(); 
     cout << "Cases in Current Month: " << casesInCurrentMonth << endl;
 
     cout << "Assigned Officials:" << endl;
     for (const auto& official : officials) {
-        cout << "Position: " << official.position << endl;  // <-- Add closing quotation mark and semicolon here
+        cout << "Position: " << official.position << endl;  
         cout << "Name: " << official.name << endl;
         cout << "-----------------------------------------------" << endl;
     }
@@ -147,6 +147,15 @@ bool isNumeric(const string& str) {
     stringstream ss(str);
     int num;
     return (ss >> num >> ws).eof();
+}
+
+void removeBlotterCase(vector<BlotterCase>& blotterCases, const string& personName) {
+    auto it = remove_if(blotterCases.begin(), blotterCases.end(),
+                        [&](const BlotterCase& b) {
+                            return (strcasecmp(b.personName.c_str(), personName.c_str()) == 0);
+                        });
+
+    blotterCases.erase(it, blotterCases.end());
 }
 
 int main() {
@@ -176,7 +185,7 @@ int main() {
     bool invalidChoice = false;
 
     do {
-        displayedNames.clear(); // Clear displayedNames at the start of the loop
+        displayedNames.clear(); 
 
         if (invalidChoice) {
             cout << "Your input is wrong. Enter your choice" << endl;
@@ -192,7 +201,8 @@ int main() {
         cout << "5. View Successful Cases" << endl;
         cout << "6. Exit" << endl;
         cout << "7. Add New Citizen and File Blotter Case" << endl;
-        cout << "Enter your choice (1, 2, 3, 4, 5, 6, or 7): ";
+        cout << "8. Remove Blotter Case" << endl;
+        cout << "Enter your choice (1, 2, 3, 4, 5, 6, 7, or 8): ";
 
         cin >> input;
 
@@ -351,7 +361,42 @@ int main() {
                 displayCitizens(citizens, displayedNames);
             }
             break;
+            case 8: {
+                cout << "You chose to remove a blotter case." << endl;
 
+                bool validPersonName = false;
+                string personToRemove;
+
+                do {
+                    displayBlotterCases(blotterCases);
+
+                    cout << "Enter the name of the person to remove the blotter case (type 'exit' to go back): ";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    getline(cin, personToRemove);
+
+                    if (personToRemove == "exit") {
+                        break;
+                    }
+
+                    // Check if the entered name exists in the blotter cases
+                    if (find_if(blotterCases.begin(), blotterCases.end(),
+                                [&](const BlotterCase& b) {
+                                    return strcasecmp(b.personName.c_str(), personToRemove.c_str()) == 0;
+                                }) != blotterCases.end()) {
+                        validPersonName = true;
+                    } else {
+                        cout << "Person not found in the blotter cases. Please enter a valid person name." << endl;
+                    }
+
+                } while (!validPersonName);
+
+                if (validPersonName) {
+                                        // Remove blotter case for the specified person
+                    removeBlotterCase(blotterCases, personToRemove);
+                    cout << "Blotter case removed successfully for " << personToRemove << endl;
+                }
+            }
+            break;
             default:
                 invalidChoice = true;
                 break;
